@@ -1048,7 +1048,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2834d7f4c02ce3c48bc5d7cfbdc28705, type: 3}
   m_Name: 
@@ -1063,7 +1063,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 63497b98f1b663543ac63cca425c5495, type: 3}
   m_Name: 
@@ -2806,14 +2806,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 1391579354}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ceb3f74d29f3f445beafc55d2c58782, type: 3}
+  m_Script: {fileID: 11500000, guid: f61d434125f108a478a87b7ba22c192c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
   jumpForce: 5
-  boostedJumpForce: 0
-  playerRb: {fileID: 1391579355}
+  additiveJumpForce: 15
+  additiveJumpDuration: 0
+  additiveJumpMaxDuration: 0.5
+  playerRb: {fileID: 0}
   jumpCount: 0
+  jumpLimit: 0
 --- !u!1 &1426813783
 GameObject:
   m_ObjectHideFlags: 0
