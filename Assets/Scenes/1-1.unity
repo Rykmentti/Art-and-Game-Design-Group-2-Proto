@@ -2449,6 +2449,7 @@ GameObject:
   - component: {fileID: 1425613225}
   - component: {fileID: 1425613224}
   - component: {fileID: 1425613223}
+  - component: {fileID: 1425613228}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -2463,7 +2464,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1425613222}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ceb3f74d29f3f445beafc55d2c58782, type: 3}
   m_Name: 
@@ -2577,6 +2578,26 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1425613228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425613222}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f61d434125f108a478a87b7ba22c192c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 5
+  jumpForce: 5
+  additiveJumpForce: 15
+  additiveJumpDuration: 0
+  additiveJumpMaxDuration: 0.5
+  playerRb: {fileID: 0}
+  jumpCount: 0
+  jumpLimit: 0
 --- !u!4 &1475881737 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6261582515111504375, guid: f7002355c6fd7f740b435111bfa5d98e, type: 3}
