@@ -6,6 +6,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     //"Mario" Controls
+    [SerializeField] AudioSource audioSource;
+    [SerializeField] AudioClip footsteps;
     [SerializeField] Animator animator; // Set in Editor
 
     [SerializeField] float speed;
@@ -20,6 +22,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] int jumpCount;
     [SerializeField] int jumpLimit;
 
+    [SerializeField] bool playeFootsteps;
     bool landing;
     bool wallJumping;
     bool jumping;
@@ -52,6 +55,7 @@ public class PlayerController : MonoBehaviour
             transform.Translate(Vector2.left * speed * Time.deltaTime);
             if (!jumping)
             {
+                StartCoroutine(PlayFootSteps());
                 ResetAnimatorParameterValues();
                 animator.SetBool("Running_Left", true);
             }
@@ -71,6 +75,7 @@ public class PlayerController : MonoBehaviour
             transform.Translate(Vector2.right * speed * Time.deltaTime);
             if (!jumping)
             {
+                StartCoroutine(PlayFootSteps());
                 ResetAnimatorParameterValues();
                 animator.SetBool("Running_Right", true);
             }
@@ -145,6 +150,16 @@ public class PlayerController : MonoBehaviour
         {
             additiveJumpDuration = 0;
             jumpCount++;
+        }
+        IEnumerator PlayFootSteps()
+        {
+            if (playeFootsteps)
+            {
+                playeFootsteps = false;
+                audioSource.PlayOneShot(footsteps);
+                yield return new WaitForSeconds(0.4f);
+                playeFootsteps = true;
+            }
         }
     }
     void IncreaseJumpLimit() // Double Jump Power Up?
