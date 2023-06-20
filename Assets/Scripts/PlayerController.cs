@@ -1,23 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    //"Mario" Controls
+    [SerializeField] Animator animator; // Set in Editor
+
     [SerializeField] float speed;
     [SerializeField] float jumpForce;
-    [SerializeField] float boostedJumpForce;
+
+    [SerializeField] float additiveJumpForce;
+    [SerializeField] float additiveJumpDuration;
+    [SerializeField] float additiveJumpMaxDuration;
 
     [SerializeField] Rigidbody2D playerRb;
 
     [SerializeField] int jumpCount;
+    [SerializeField] int jumpLimit;
 
     bool wallJumping;
     // Start is called before the first frame update
     void OnGUI() // Testing
     {
-        GUI.Label(new Rect(10, 80, 300, 30), "Boosted Jump Force = " + boostedJumpForce);
+        GUI.Label(new Rect(10, 80, 300, 30), "JumpForce = " + jumpForce);
+        GUI.Label(new Rect(10, 100, 300, 30), "JumpCount = " + jumpCount);
+        GUI.Label(new Rect(10, 120, 300, 30), "JumpLimit = " + jumpLimit);
+        GUI.Label(new Rect(10, 140, 300, 30), "AdditiveJumpDuration = " + additiveJumpDuration);
+        GUI.Label(new Rect(10, 160, 300, 30), "AdditiveJumpMaxDuration = " + additiveJumpMaxDuration);
     }
     void Start()
     {
@@ -35,11 +45,25 @@ public class PlayerController : MonoBehaviour
         // Regular Movement
         if (Input.GetKey(KeyCode.A))
         {
+            ResetAnimatorParameterValues();
+            animator.SetBool("Running_Left", true);
             transform.Translate(Vector2.left * speed * Time.deltaTime);
+        }
+        if (Input.GetKeyUp(KeyCode.A))
+        {
+            ResetAnimatorParameterValues();
+            animator.SetBool("Idle_Left", true);
         }
         if (Input.GetKey(KeyCode.D))
         {
+            ResetAnimatorParameterValues();
+            animator.SetBool("Running_Right", true);
             transform.Translate(Vector2.right * speed * Time.deltaTime);
+        }
+        if (Input.GetKeyUp(KeyCode.D))
+        {
+            ResetAnimatorParameterValues();
+            animator.SetBool("Idle_Right", true);
         }
 
         // Sprint Movement
@@ -51,23 +75,40 @@ public class PlayerController : MonoBehaviour
         {
             speed = 5;
         }
-        // Boosted Jump
-        if (Input.GetKey(KeyCode.Space) && jumpCount <= 1 && wallJumping == false)
+        // Regular Jump
+        if (Input.GetKeyDown(KeyCode.Space) && jumpCount <= jumpLimit && wallJumping == false)
         {
-            boostedJumpForce += Time.deltaTime;
+            playerRb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         }
-        if (Input.GetKeyUp(KeyCode.Space) && jumpCount <= 1 && wallJumping == false)
+        // Additive Jump "Mario Jump"
+        if (Input.GetKey(KeyCode.Space) && jumpCount <= jumpLimit && additiveJumpDuration <= additiveJumpMaxDuration && wallJumping == false)
         {
-            jumpCount++; // Double Jump Mechanic.
-            playerRb.AddForce(Vector2.up * (boostedJumpForce * 2 + jumpForce), ForceMode2D.Impulse);
-            Debug.Log("Boosted Jump Force was" + (boostedJumpForce * 2 + jumpForce)); // Testing.
-            boostedJumpForce = 0;
+            additiveJumpDuration += Time.deltaTime;
+            playerRb.AddForce(Vector2.up * additiveJumpForce * Time.deltaTime, ForceMode2D.Impulse);
         }
-        if (Input.GetKeyDown(KeyCode.Space) && jumpCount <= 1 && wallJumping == true)
+        if (Input.GetKeyUp(KeyCode.Space) && jumpCount <= jumpLimit && wallJumping == false)
+        {
+            additiveJumpDuration = 0;
+            jumpCount++;
+        }
+        // Wall Jump
+        if (Input.GetKeyDown(KeyCode.Space) && jumpCount <= 0 && wallJumping == true)
         {
             jumpCount++;
-            playerRb.AddForce(Vector2.up * (jumpForce * 2), ForceMode2D.Impulse);
+            playerRb.AddForce(Vector2.up * jumpForce * 2, ForceMode2D.Impulse);
             Debug.Log("Wall Jump Force was" + (jumpForce * 2)); // Testing.
+        }
+    }
+    void IncreaseJumpLimit() // Double Jump Power Up?
+    {
+        jumpLimit++;
+    }
+
+    void ResetAnimatorParameterValues() // Hope it works.
+    {
+        foreach (var parameter in animator.parameters)
+        {
+            animator.SetBool(parameter.name, false);
         }
     }
     private void OnCollisionEnter2D(Collision2D other)
@@ -80,7 +121,7 @@ public class PlayerController : MonoBehaviour
                 wallJumping = false;
                 speed = speed / 2;
                 Debug.Log("Not Wall Jumping!");
-            }          
+            }
         }
 
         if (other.gameObject.CompareTag("WallJumpPlatform"))
