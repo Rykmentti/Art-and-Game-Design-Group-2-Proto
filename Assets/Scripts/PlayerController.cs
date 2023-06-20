@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.TextCore.Text;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -19,7 +20,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] int jumpCount;
     [SerializeField] int jumpLimit;
 
+    bool landing;
     bool wallJumping;
+    bool jumping;
     // Start is called before the first frame update
     void OnGUI() // Testing
     {
@@ -28,6 +31,7 @@ public class PlayerController : MonoBehaviour
         GUI.Label(new Rect(10, 120, 300, 30), "JumpLimit = " + jumpLimit);
         GUI.Label(new Rect(10, 140, 300, 30), "AdditiveJumpDuration = " + additiveJumpDuration);
         GUI.Label(new Rect(10, 160, 300, 30), "AdditiveJumpMaxDuration = " + additiveJumpMaxDuration);
+        GUI.Label(new Rect(10, 180, 300, 30), "Jumping = " + jumping);
     }
     void Start()
     {
@@ -45,22 +49,38 @@ public class PlayerController : MonoBehaviour
         // Regular Movement
         if (Input.GetKey(KeyCode.A))
         {
-            ResetAnimatorParameterValues();
-            animator.SetBool("Running_Left", true);
             transform.Translate(Vector2.left * speed * Time.deltaTime);
+            if (!jumping)
+            {
+                ResetAnimatorParameterValues();
+                animator.SetBool("Running_Left", true);
+            }
+            if (jumping && !landing & !animator.GetBool("JumpStart_Left"))
+            {
+                ResetAnimatorParameterValues();
+                animator.SetBool("JumpFloat_Left", true);
+            }
         }
-        if (Input.GetKeyUp(KeyCode.A))
+        if (Input.GetKeyUp(KeyCode.A) && !jumping)
         {
             ResetAnimatorParameterValues();
             animator.SetBool("Idle_Left", true);
         }
         if (Input.GetKey(KeyCode.D))
         {
-            ResetAnimatorParameterValues();
-            animator.SetBool("Running_Right", true);
             transform.Translate(Vector2.right * speed * Time.deltaTime);
+            if (!jumping)
+            {
+                ResetAnimatorParameterValues();
+                animator.SetBool("Running_Right", true);
+            }
+            if (jumping && !landing && !animator.GetBool("JumpStart_Right"))
+            {
+                ResetAnimatorParameterValues();
+                animator.SetBool("JumpFloat_Right", true);
+            }
         }
-        if (Input.GetKeyUp(KeyCode.D))
+        if (Input.GetKeyUp(KeyCode.D) && !jumping)
         {
             ResetAnimatorParameterValues();
             animator.SetBool("Idle_Right", true);
@@ -75,10 +95,14 @@ public class PlayerController : MonoBehaviour
         {
             speed = 5;
         }
+
         // Regular Jump
         if (Input.GetKeyDown(KeyCode.Space) && jumpCount <= jumpLimit && wallJumping == false)
         {
             playerRb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            jumping = true;
+
+            StartCoroutine(StartJumpAnimation());
         }
         // Additive Jump "Mario Jump"
         if (Input.GetKey(KeyCode.Space) && jumpCount <= jumpLimit && additiveJumpDuration <= additiveJumpMaxDuration && wallJumping == false)
@@ -86,17 +110,41 @@ public class PlayerController : MonoBehaviour
             additiveJumpDuration += Time.deltaTime;
             playerRb.AddForce(Vector2.up * additiveJumpForce * Time.deltaTime, ForceMode2D.Impulse);
         }
-        if (Input.GetKeyUp(KeyCode.Space) && jumpCount <= jumpLimit && wallJumping == false)
-        {
-            additiveJumpDuration = 0;
-            jumpCount++;
-        }
         // Wall Jump
         if (Input.GetKeyDown(KeyCode.Space) && jumpCount <= 0 && wallJumping == true)
         {
             jumpCount++;
             playerRb.AddForce(Vector2.up * jumpForce * 2, ForceMode2D.Impulse);
             Debug.Log("Wall Jump Force was" + (jumpForce * 2)); // Testing.
+        }
+        IEnumerator StartJumpAnimation()
+        {
+            if (animator.GetBool("Running_Right") || animator.GetBool("Idle_Right"))
+            {
+                ResetAnimatorParameterValues();
+                animator.SetBool("JumpStart_Right", true);
+            }
+            if (animator.GetBool("Running_Left") || animator.GetBool("Idle_Left"))
+            {
+                ResetAnimatorParameterValues();
+                animator.SetBool("JumpStart_Left", true);
+            }
+            yield return new WaitForSeconds(0.25f);
+            if (animator.GetBool("JumpStart_Right"))
+            {
+                ResetAnimatorParameterValues();
+                animator.SetBool("JumpFloat_Right", true);
+            }
+            if (animator.GetBool("JumpStart_Left"))
+            {
+                ResetAnimatorParameterValues();
+                animator.SetBool("JumpFloat_Left", true);
+            }
+        }
+        if (Input.GetKeyUp(KeyCode.Space) && jumpCount <= jumpLimit && wallJumping == false)
+        {
+            additiveJumpDuration = 0;
+            jumpCount++;
         }
     }
     void IncreaseJumpLimit() // Double Jump Power Up?
@@ -116,11 +164,39 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("GroundPlatform"))
         {
             jumpCount = 0;
+            
             if (wallJumping)
             {
                 wallJumping = false;
                 speed = speed / 2;
                 Debug.Log("Not Wall Jumping!");
+            }
+            StartCoroutine(LandingJumpAnimation());
+            
+            IEnumerator LandingJumpAnimation()
+            {
+                if (jumping && animator.GetBool("JumpFloat_Right"))
+                {
+                    landing = true;
+                    ResetAnimatorParameterValues();
+                    animator.SetBool("JumpEnd_Right", true);
+                    yield return new WaitForSeconds(0.416f);
+                    ResetAnimatorParameterValues();
+                    animator.SetBool("Idle_Right", true);
+                    landing = false;
+                    jumping = false;
+                }
+                if (jumping && animator.GetBool("JumpFloat_Left"))
+                {
+                    landing = true;
+                    ResetAnimatorParameterValues();
+                    animator.SetBool("JumpEnd_Left", true);
+                    yield return new WaitForSeconds(0.416f);
+                    ResetAnimatorParameterValues();
+                    animator.SetBool("Idle_Left", true);
+                    landing = false;
+                    jumping = false;
+                }
             }
         }
 
