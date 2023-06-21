@@ -4,19 +4,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class TransitionLevelSceneManager : MonoBehaviour
+public class TransitionToNextLevel : MonoBehaviour
 {
-    [SerializeField] GameObject transitionObject;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        StartCoroutine(FadeIn());
-        transitionObject.AddComponent<TransitionToNextLevel>();
-        //StartCoroutine(FadeOut("Insert Next Scene name here"));
-        
-    }
-    IEnumerator FadeIn()
+    IEnumerator FadeOut(string sceneName)
     {
         GameObject fadeScreen = new GameObject();
         fadeScreen.name = "Fade Screen";
@@ -28,14 +18,26 @@ public class TransitionLevelSceneManager : MonoBehaviour
         fadeScreen.AddComponent<GraphicRaycaster>();
         fadeScreen.AddComponent<Image>();
         Image fadeScreenImage = fadeScreen.GetComponent<Image>();
-
-        fadeScreenImage.color = new Color(0, 0, 0, 1);
-        for (float i = 1; i > 0; i -= (float)0.01)
+        fadeScreenImage.color = new Color(0, 0, 0, 0);
+        for (float i = 0; i < 1; i += (float)0.01)
         {
             fadeScreenImage.color = new Color(0, 0, 0, i);
             Debug.Log("transparency is = " + i);
             yield return new WaitForSeconds(.01f);
         }
-        Destroy(fadeScreen);
+        yield return new WaitForSeconds(1f);
+        ChangeSceneWithSceneName(sceneName); // Use parameter, which scene to change.
+    }
+    void ChangeSceneWithSceneName(string sceneName) // Change scene method with name (string) as a parameter.
+    {
+        SceneManager.LoadScene(sceneName);
+    }
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            Debug.Log("Trigger triggered");
+            StartCoroutine(FadeOut("1-1"));
+        }
     }
 }
