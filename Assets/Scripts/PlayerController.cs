@@ -29,12 +29,12 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void OnGUI() // Testing
     {
-        GUI.Label(new Rect(10, 80, 300, 30), "JumpForce = " + jumpForce);
-        GUI.Label(new Rect(10, 100, 300, 30), "JumpCount = " + jumpCount);
-        GUI.Label(new Rect(10, 120, 300, 30), "JumpLimit = " + jumpLimit);
-        GUI.Label(new Rect(10, 140, 300, 30), "AdditiveJumpDuration = " + additiveJumpDuration);
-        GUI.Label(new Rect(10, 160, 300, 30), "AdditiveJumpMaxDuration = " + additiveJumpMaxDuration);
-        GUI.Label(new Rect(10, 180, 300, 30), "Jumping = " + jumping);
+        //GUI.Label(new Rect(10, 80, 300, 30), "JumpForce = " + jumpForce);
+        //GUI.Label(new Rect(10, 100, 300, 30), "JumpCount = " + jumpCount);
+        //GUI.Label(new Rect(10, 120, 300, 30), "JumpLimit = " + jumpLimit);
+        //GUI.Label(new Rect(10, 140, 300, 30), "AdditiveJumpDuration = " + additiveJumpDuration);
+        //GUI.Label(new Rect(10, 160, 300, 30), "AdditiveJumpMaxDuration = " + additiveJumpMaxDuration);
+        //GUI.Label(new Rect(10, 180, 300, 30), "Jumping = " + jumping);
     }
     void Start()
     {
@@ -156,7 +156,7 @@ public class PlayerController : MonoBehaviour
             if (playeFootsteps)
             {
                 playeFootsteps = false;
-                audioSource.PlayOneShot(footsteps);
+                audioSource.PlayOneShot(footsteps, 0.3f);
                 yield return new WaitForSeconds(0.4f);
                 playeFootsteps = true;
             }
